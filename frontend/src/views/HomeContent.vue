@@ -35,14 +35,28 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    <tr class="hover:bg-gray-50">
+                    <tr v-if="saving">
+                        <td
+                            colspan="3"
+                            class="px-4 py-3 text-center text-sm text-gray-500"
+                        >
+                            Saving employee...
+                        </td>
+                    </tr>
+                    <tr
+                        v-for="employee in employees"
+                        :key="employee.id"
+                        class="hover:bg-gray-50"
+                    >
                         <td class="px-4 py-3 text-sm text-gray-900">
-                            John Doe
+                            {{ employee.name }}
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-600">
-                            john@example.com
+                            {{ employee.email }}
                         </td>
-                        <td class="px-4 py-3 text-sm text-gray-600">Admin</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">
+                            {{ employee.position }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -71,8 +85,17 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
 import ModalContent from "./ModalContent.vue"; // tama na ang path
+import { useStore } from "vuex";
 
 const showModal = ref(false);
+
+const store = useStore();
+onMounted(() => {
+    // Fetch employees when the component is mounted
+    store.dispatch("getEmployees");
+});
+const employees = computed(() => store.state.employees); // Get employees from Vuex store
+const saving = computed(() => store.state.saving); // Get saving state from Vuex store
 </script>

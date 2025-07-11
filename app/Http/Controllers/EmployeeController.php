@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\EmployeeRequest;
+use App\Http\Resources\EmployeeResource;
 use App\Models\EmployeeModel;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,14 @@ class EmployeeController extends Controller
     public function index()
     {
         //
+        try {
+            $perPage = request()->get('per_page', 10); // Default to 10 if not provided
+            $employeeQuery = EmployeeModel::select(['id', 'name', 'email', 'position']); //  add any additional query constraints here 
+            $paginated = $employeeQuery->paginate($perPage); // paginate the results
+            return EmployeeResource::collection($paginated); // Return paginated results as a resource collection
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 
     /**
