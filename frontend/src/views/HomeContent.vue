@@ -64,7 +64,9 @@
 
         <!-- Pagination buttons -->
         <div class="flex items-center justify-between mt-4">
-            <div class="text-sm text-gray-600">Page 1 of 1</div>
+            <div class="text-sm text-gray-600">
+                Page {{ pagination.current_page }} of {{ pagination.last_page }}
+            </div>
             <div class="flex gap-2">
                 <button
                     class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
@@ -87,6 +89,7 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
 import ModalContent from "./ModalContent.vue"; // tama na ang path
+
 import { useStore } from "vuex";
 
 const showModal = ref(false);
@@ -98,4 +101,7 @@ onMounted(() => {
 });
 const employees = computed(() => store.state.employees); // Get employees from Vuex store
 const saving = computed(() => store.state.saving); // Get saving state from Vuex store
+
+//pagination
+const pagination = computed(() => store.state.pagination); // Get pagination state from Vuex store
 </script>

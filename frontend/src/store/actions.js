@@ -27,6 +27,8 @@ export async function getEmployees({ commit }) {
     try {
         const response = await axiosClient.get("employee?per_page=10");
         commit("SET_EMPLOYEES", response.data.data); // Update the state with the fetched employees
+        //PAGINATION
+        commit("SET_PAGINATION", response.data.meta); // Set pagination metadata in the state
     } catch (error) {
         commit("SET_ERROR", error.response?.data?.message || error.message); // Set the error message in the state
         console.log(error);
