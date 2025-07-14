@@ -20,18 +20,17 @@ export async function storeEmployee({ commit, dispatch }, payload) {
 }
 
 //get employees
-export async function getEmployees({ commit }) {
+export async function getEmployees({ commit }, page = 1) {
     commit("SET_LOADING", true); // Indicate that data is being loaded
     commit("SET_ERROR", null); // Clear any previou
 
     try {
-        const response = await axiosClient.get("employee?per_page=10");
-        commit("SET_EMPLOYEES", response.data.data); // Update the state with the fetched employees
-        //PAGINATION
-        commit("SET_PAGINATION", {
-            ...response.data.meta,
-            links: response.data.links,
-        }); // Set pagination metadata in the state
+        // Fetch employees from the API
+        const response = await axiosClient.get(
+            `employee?page=${page}&per_page=10`
+        );
+        commit("SET_EMPLOYEES", response.data.data);
+        commit("SET_PAGINATION", response.data.meta);
     } catch (error) {
         commit("SET_ERROR", error.response?.data?.message || error.message); // Set the error message in the state
         console.log(error);

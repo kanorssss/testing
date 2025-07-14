@@ -13,16 +13,20 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
         try {
-            $perPage = request()->get('per_page', 10); // Default to 10 if not provided
-            $employeeQuery = EmployeeModel::select(['id', 'name', 'email', 'position']); //  add any additional query constraints here 
-            $paginated = $employeeQuery->paginate($perPage); // paginate the results
-            return EmployeeResource::collection($paginated); // Return paginated results as a resource collection
+            // Get the 'per_page' parameter from the request, defaulting to 10 if not provided
+            $perPage = $request->get('per_page', 10);
+
+            $employees = EmployeeModel::select(['id', 'name', 'email', 'position'])
+                ->paginate($perPage);
+
+            return EmployeeResource::collection($employees);
         } catch (\Exception $e) {
-            dd($e);
+            // Log the exception or handle it as needed
+            return response()->json(['error' => 'Failed to fetch employees'], 500);
         }
     }
 
