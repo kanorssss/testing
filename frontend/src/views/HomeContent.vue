@@ -1,11 +1,8 @@
-<!-- src/views/HomeContent.vue -->
 <template>
-    <!-- <p>{{ page }}</p> -->
-    <!-- <pre class="text-xs bg-gray-100 p-2 mt-2">{{ pagination }}</pre> -->
     <div class="max-w-4xl mx-auto p-6">
         <h2 class="text-xl font-bold mb-4">Users</h2>
 
-        <div class="text-xl font-bold mb-4">
+        <div class="mb-4">
             <button
                 @click="showModal = true"
                 class="bg-blue-500 text-white px-4 py-1 rounded"
@@ -14,7 +11,7 @@
             </button>
         </div>
 
-        <!-- Simple Table -->
+        <!-- Table -->
         <div class="bg-white shadow rounded-lg overflow-hidden">
             <table class="w-full">
                 <thead class="bg-gray-50">
@@ -44,7 +41,7 @@
                 <tbody class="divide-y divide-gray-200">
                     <tr v-if="saving">
                         <td
-                            colspan="3"
+                            colspan="4"
                             class="px-4 py-3 text-center text-sm text-gray-500"
                         >
                             Saving employee...
@@ -83,33 +80,31 @@
             </table>
         </div>
 
-        <!-- Pagination buttons -->
+        <!-- Pagination -->
         <div class="flex items-center justify-between mt-4">
             <div class="text-sm text-gray-600">
                 Page {{ pagination.current_page }} of {{ pagination.last_page }}
             </div>
             <div class="flex gap-2">
                 <button
-                    class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
-                    :disabled="pagination.current_page === 1"
                     @click="changePage(pagination.current_page - 1)"
+                    :disabled="pagination.current_page <= 1"
+                    class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                 >
                     Previous
                 </button>
                 <button
-                    class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
-                    :disabled="pagination.current_page === pagination.last_page"
                     @click="changePage(pagination.current_page + 1)"
+                    :disabled="pagination.current_page >= pagination.last_page"
+                    class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
                 >
                     Next
                 </button>
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Modals -->
         <ModalContent v-model="showModal" />
-
-        <!-- Edit Modal -->
         <EditModalContent
             v-model="showModalEdit"
             :employee="selectedEmployee"
@@ -119,51 +114,41 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import ModalContent from "./ModalContent.vue"; // tama na ang path
-import EditModalContent from "./EditModalContent.vue"; // tama na ang path
-//add sweet alert
+import { useStore } from "vuex";
 import Swal from "sweetalert2";
 
-import { useStore } from "vuex";
+import ModalContent from "./ModalContent.vue";
+import EditModalContent from "./EditModalContent.vue";
 
-const showModal = ref(false);
 const store = useStore();
-
-//Edit part
-// Define a ref for the selected employee to be edited
-const selectedEmployee = ref(null);
-// Function to open the edit modal with the selected employee
+const showModal = ref(false);
 const showModalEdit = ref(false);
-//end
+const selectedEmployee = ref(null);
 
-//table load
+const employees = computed(() => store.state.employees);
+const saving = computed(() => store.state.saving);
+const pagination = computed(() => store.state.pagination);
+
+//table
 onMounted(() => {
-    // Fetch employees when the component is mounted
-    store.dispatch("getEmployees");
+    store.dispatch("getEmployees"); // default page 1
 });
 //end
 
-const employees = computed(() => store.state.employees); // Get employees from Vuex store
-const saving = computed(() => store.state.saving); // Get saving state from Vuex store
-
-//pagination
-const pagination = computed(() => store.state.pagination); // Get pagination state from Vuex store
-
-const loadPage = (page) => {
-    store.dispatch("getEmployees", page);
-};
-
+// Function to change the page
 const changePage = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.value.last_page) {
-        loadPage(newPage);
+        store.dispatch("getEmployees", newPage);
     }
 };
+//end
 
 // Function to open the modal for adding a new employee
 const openEditModal = (employee) => {
-    selectedEmployee.value = { ...employee }; // Create a copy of the employee object
-    showModalEdit.value = true; // Open the edit modal
+    selectedEmployee.value = { ...employee };
+    showModalEdit.value = true;
 };
+//end
 
 // Function to confirm deletion of an employee
 const confirmDelete = (employee) => {
@@ -194,4 +179,5 @@ const confirmDelete = (employee) => {
         }
     });
 };
+//end
 </script>
