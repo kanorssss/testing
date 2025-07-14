@@ -1,4 +1,3 @@
-<!-- src/components/EmployeeModal.vue -->
 <template>
     <Teleport to="body">
         <div
@@ -6,7 +5,7 @@
             class="fixed inset-0 bg-opacity-50 flex justify-center items-center z-50 transition mt-1"
         >
             <div class="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
-                <h2 class="text-xl font-semibold mb-4">Employee</h2>
+                <h2 class="text-xl font-semibold mb-4">Edit Employee</h2>
 
                 <form @submit.prevent="handleSubmit">
                     <input
@@ -50,44 +49,57 @@
         </div>
     </Teleport>
 </template>
-
 <script setup>
-import { reactive, defineModel } from "vue";
-
-//import store vuex
+import { reactive, watch } from "vue";
 import { useStore } from "vuex";
+
+const props = defineProps({
+    modelValue: Boolean, // Modal visibility
+    employee: Object, // Employee data to edit
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
 const store = useStore();
 
-// Define the model for the modal visibility
-const modelValue = defineModel({ type: Boolean, default: false });
-
+//form data
 const form = reactive({
     name: "",
     email: "",
     position: "",
 });
 
-function close() {
-    modelValue.value = false;
-}
+watch(
+    () => props.employee,
+    (emp) => {
+        // console.log("Employee data changed:", emp);
+        if (emp) {
+            form.name = emp.name || "";
+            form.email = emp.email || "";
+            form.position = emp.position || "";
+        }
+    },
 
-// function handleSubmit() {
-//     close();
-// }
+    { immediate: true }
+);
 
-//clear all fields
-function clearFields() {
-    form.name = "";
-    form.email = "";
-    form.position = "";
-}
-async function handleSubmit() {
+//close modal
+const close = () => {
+    emit("update:modelValue", false);
+};
+
+const handleSubmit = async () => {
     try {
-        await store.dispatch("storeEmployee", form);
-        clearFields();
-        close();
-    } catch (error) {
-        console.log(error);
+        await store.dispatch("updateEmployees", {
+            id: props.employee.id,
+            name: form.name,
+            email: form.email,
+            position: form.email,
+        });
+        alert("ARAY KO!!1");
+        emit("update:modelValue", false);
+    } catch (err) {
+        alert("ADDA ERROR MO LONG");
     }
-}
+};
 </script>

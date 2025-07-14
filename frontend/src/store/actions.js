@@ -22,13 +22,16 @@ export async function storeEmployee({ commit, dispatch }, payload) {
 //get employees
 export async function getEmployees({ commit }) {
     commit("SET_LOADING", true); // Indicate that data is being loaded
-    commit("SET_ERROR", null); // Clear any previous
+    commit("SET_ERROR", null); // Clear any previou
 
     try {
         const response = await axiosClient.get("employee?per_page=10");
         commit("SET_EMPLOYEES", response.data.data); // Update the state with the fetched employees
         //PAGINATION
-        commit("SET_PAGINATION", response.data.meta); // Set pagination metadata in the state
+        commit("SET_PAGINATION", {
+            ...response.data.meta,
+            links: response.data.links,
+        }); // Set pagination metadata in the state
     } catch (error) {
         commit("SET_ERROR", error.response?.data?.message || error.message); // Set the error message in the state
         console.log(error);
@@ -36,7 +39,30 @@ export async function getEmployees({ commit }) {
         commit("SET_LOADING", false); // Indicate that loading is complete
     }
 }
+
+export async function updateEmployees({ commit, dispatch }, payload) {
+    commit("SET_SAVING", true);
+    commit("SET_ERROR", true);
+
+    try {
+        const response = await axiosClient.put(
+            `employee/${payload.id}`,
+            payload
+        );
+
+        //refresh the table when its update
+        await dispatch("getEmployees");
+        //return response
+        return response.data;
+    } catch (err) {
+        console.log(err);
+        commit("SET_ERROR", message);
+    } finally {
+        commit("SET_LOADING", false);
+    }
+}
 export default {
     storeEmployee,
     getEmployees,
+    updateEmployees,
 };
