@@ -68,7 +68,7 @@ export async function deleteEmployees({ commit, dispatch }, id) {
         //refresh the table when its deleted
         await dispatch("getEmployees");
     } catch (error) {
-        commit("SET_ERROR", error.response?.data?.message || error.message);
+        commit("SET_ERROR", error.response?.data?.error || error.message);
         throw error;
     } finally {
         commit("SET_SAVING", false);
