@@ -1,6 +1,11 @@
 import { createStore } from "vuex";
 import { mutations } from "./mutations.js";
-import { storeEmployee, getEmployees, updateEmployees } from "./actions";
+import {
+    storeEmployee,
+    getEmployees,
+    updateEmployees,
+    deleteEmployees,
+} from "./actions";
 import { state } from "./state.js";
 // import { state } from "./state.js";
 
@@ -11,6 +16,7 @@ const store = createStore({
         storeEmployee,
         getEmployees,
         updateEmployees,
+        deleteEmployees,
     },
 });
 
