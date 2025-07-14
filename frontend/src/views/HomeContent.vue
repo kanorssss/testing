@@ -185,7 +185,11 @@ const confirmDelete = (employee) => {
                     "success"
                 );
             } catch (error) {
-                Swal.fire("Error!", "Something went wrong.", "error");
+                const errorMessage =
+                    error.response?.data?.error ||
+                    error.message ||
+                    "Failed to delete employee";
+                Swal.fire("Error!", errorMessage, "error");
             }
         }
     });

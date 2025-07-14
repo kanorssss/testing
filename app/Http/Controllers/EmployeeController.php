@@ -73,7 +73,7 @@ class EmployeeController extends Controller
         //
         try {
             $employee->delete();
-            return response()->json(['message' => 'Deleted successfully'], 204);
+            return response()->json(['message' => 'Deleted successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Delete failed'], 500);
         }

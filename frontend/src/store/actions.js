@@ -63,6 +63,7 @@ export async function updateEmployees({ commit, dispatch }, payload) {
 }
 
 export async function deleteEmployees({ commit, dispatch }, id) {
+    commit("SET_SAVING", true);
     try {
         await axiosClient.delete(`employee/${id}`);
         //refresh the table when its deleted
@@ -70,6 +71,8 @@ export async function deleteEmployees({ commit, dispatch }, id) {
     } catch (error) {
         commit("SET_ERROR", error.response?.data?.message || error.message);
         throw error;
+    } finally {
+        commit("SET_SAVING", false);
     }
 }
 export default {
