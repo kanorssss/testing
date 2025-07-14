@@ -18,6 +18,12 @@ export const mutations = {
     },
     // Update the pagination metadata
     SET_PAGINATION(state, meta) {
-        state.pagination = meta;
+        state.pagination = {
+            current_page: meta.current_page ?? 1,
+            last_page: meta.last_page ?? 1,
+            per_page: meta.per_page ?? 10,
+            total: meta.total ?? 0,
+            links: Array.isArray(meta.links) ? meta.links : [], // ✅ Always force an array
+        };
     },
 };

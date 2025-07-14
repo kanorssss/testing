@@ -53,9 +53,16 @@ class EmployeeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(EmployeeRequest $request, EmployeeModel $employee)
     {
         //
+        try {
+            $validated = $request->validated();
+            $employee->update($validated);
+            return new EmployeeResource($employee);
+        } catch (\Exception $e) {
+            dd($e);
+        }
     }
 
     /**
