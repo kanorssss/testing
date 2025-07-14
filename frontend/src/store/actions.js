@@ -58,11 +58,23 @@ export async function updateEmployees({ commit, dispatch }, payload) {
         console.log(err);
         commit("SET_ERROR", message);
     } finally {
-        commit("SET_LOADING", false);
+        commit("SET_SAVING", false);
+    }
+}
+
+export async function deleteEmployees({ commit, dispatch }, id) {
+    try {
+        await axiosClient.delete(`employee/${id}`);
+        //refresh the table when its deleted
+        await dispatch("getEmployees");
+    } catch (error) {
+        commit("SET_ERROR", error.response?.data?.message || error.message);
+        throw error;
     }
 }
 export default {
     storeEmployee,
     getEmployees,
     updateEmployees,
+    deleteEmployees,
 };

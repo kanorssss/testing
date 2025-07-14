@@ -73,6 +73,7 @@
                             </button>
                             <button
                                 class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+                                @click="confirmDelete(employee)"
                             >
                                 Delete
                             </button>
@@ -120,21 +121,28 @@
 import { ref, onMounted, computed } from "vue";
 import ModalContent from "./ModalContent.vue"; // tama na ang path
 import EditModalContent from "./EditModalContent.vue"; // tama na ang path
+//add sweet alert
+import Swal from "sweetalert2";
 
 import { useStore } from "vuex";
 
 const showModal = ref(false);
+const store = useStore();
+
+//Edit part
 // Define a ref for the selected employee to be edited
 const selectedEmployee = ref(null);
 // Function to open the edit modal with the selected employee
 const showModalEdit = ref(false);
+//end
 
-const store = useStore();
-
+//table load
 onMounted(() => {
     // Fetch employees when the component is mounted
     store.dispatch("getEmployees");
 });
+//end
+
 const employees = computed(() => store.state.employees); // Get employees from Vuex store
 const saving = computed(() => store.state.saving); // Get saving state from Vuex store
 
@@ -151,20 +159,35 @@ const changePage = (newPage) => {
     }
 };
 
-const handleLinkClick = (link) => {
-    if (!link || !link.url) return;
-
-    const url = new URL(link.url);
-    const page = url.searchParams.get("page");
-
-    if (page) {
-        changePage(parseInt(page));
-    }
-};
-
 // Function to open the modal for adding a new employee
 const openEditModal = (employee) => {
     selectedEmployee.value = { ...employee }; // Create a copy of the employee object
     showModalEdit.value = true; // Open the edit modal
+};
+
+// Function to confirm deletion of an employee
+const confirmDelete = (employee) => {
+    Swal.fire({
+        title: `Delete ${employee.name}?`,
+        text: "This action cannot be undone.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#e3342f",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await store.dispatch("deleteEmployees", employee.id);
+                Swal.fire(
+                    "Deleted!",
+                    `${employee.name} has been deleted.`,
+                    "success"
+                );
+            } catch (error) {
+                Swal.fire("Error!", "Something went wrong.", "error");
+            }
+        }
+    });
 };
 </script>
