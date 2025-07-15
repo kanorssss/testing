@@ -74,7 +74,7 @@
 
                     <!-- List of employees -->
                     <tr
-                        v-for="employee in filteredEmployees"
+                        v-for="employee in employees"
                         :key="employee.id"
                         class="hover:bg-gray-50"
                     >
@@ -148,7 +148,7 @@ import EditModalContent from "./EditModalContent.vue";
 //add spinner
 import SpinnerContent from "../components/SpinnerContent.vue";
 //import debounce
-
+import { debounce } from "lodash";
 const store = useStore();
 const showModal = ref(false);
 const showModalEdit = ref(false);
@@ -159,16 +159,19 @@ const saving = computed(() => store.state.saving);
 const pagination = computed(() => store.state.pagination);
 const spinner = computed(() => store.state.loading);
 
-//table
-onMounted(() => {
-    store.dispatch("getEmployees"); // default page 1
-});
+//table, remove it when search already implement
+// onMounted(() => {
+//     store.dispatch("getEmployees"); // default page 1
+// });
 //end
 
 // Function to change the page
 const changePage = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.value.last_page) {
-        store.dispatch("getEmployees", newPage);
+        store.dispatch("getEmployees", {
+            page: newPage,
+            search: searchQuery.value, //maintain search if active
+        });
     }
 };
 //end
@@ -213,18 +216,18 @@ const confirmDelete = (employee) => {
 
 // search
 const searchQuery = ref("");
-const filteredEmployees = computed(() => {
-    // if no search query return the full employee list
-    if (!searchQuery.value) return employees.value;
+const filteredEmployees = debounce((query) => {
+    store.dispatch("getEmployees", {
+        page: 1,
+        search: query,
+    });
+}, 500);
 
-    //convert the query to lowercase for case sensitive
-    const query = searchQuery.value.toLowerCase();
-    return employees.value.filter(
-        (emp) =>
-            emp.name.toLowerCase().includes(query) ||
-            emp.email.toLowerCase().includes(query) ||
-            emp.position.toLowerCase().includes(query)
-    );
+//Watch for changes in searchQuery and trigger filteredEmployees
+watch(searchQuery, (newQuery) => {
+    filteredEmployees(newQuery);
 });
+//inital reload
+store.dispatch("getEmployees", { page: 1 });
 //end
 </script>
