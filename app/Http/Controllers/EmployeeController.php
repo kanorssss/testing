@@ -16,12 +16,26 @@ class EmployeeController extends Controller
     public function index(Request $request)
     {
         //
+
         try {
             // Get the 'per_page' parameter from the request, defaulting to 10 if not provided
             $perPage = $request->get('per_page', 10);
+            //search
+            $search = $request->get('search');
 
-            $employees = EmployeeModel::select(['id', 'name', 'email', 'position'])
-                ->paginate($perPage);
+
+            $query = EmployeeModel::select(['id', 'name', 'email', 'position']);
+
+            //Apply search filter from frontend
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('position', 'like', "%{$search}%");
+                });
+            }
+
+            $employees = $query->paginate($perPage);
 
             return EmployeeResource::collection($employees);
         } catch (\Exception $e) {
@@ -60,6 +74,7 @@ class EmployeeController extends Controller
     public function update(EmployeeRequest $request, EmployeeModel $employee)
     {
         //
+
         try {
             $validated = $request->validated();
             $employee->update($validated);
