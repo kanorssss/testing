@@ -22,7 +22,7 @@ export async function storeEmployee({ commit, dispatch }, payload) {
 //get employees
 export async function getEmployees({ commit }, page = 1) {
     commit("SET_LOADING", true); // Indicate that data is being loaded
-    commit("SET_ERROR", null); // Clear any previou
+    commit("SET_ERROR", null); // Clear any previous
 
     try {
         // Fetch employees from the API
