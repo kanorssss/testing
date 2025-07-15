@@ -139,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 
@@ -222,7 +222,10 @@ const filteredEmployees = debounce((query) => {
         search: query,
     });
 }, 500);
-
+//clean up component destroy to avoid memory leak
+onUnmounted(() => {
+    filteredEmployees.cancel();
+});
 //Watch for changes in searchQuery and trigger filteredEmployees
 watch(searchQuery, (newQuery) => {
     filteredEmployees(newQuery);
