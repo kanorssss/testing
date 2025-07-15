@@ -9,11 +9,24 @@
             >
                 Add New
             </button>
+            <input
+                type="text"
+                v-model="searchQuery"
+                placeholder="Search by name, email, or role"
+                class="ml-4 px-2 py-1 border rounded"
+            />
         </div>
 
         <!-- Table -->
+
         <div class="bg-white shadow rounded-lg overflow-hidden">
-            <table class="w-full">
+            <!-- Show Spinner When Loading -->
+            <div v-if="spinner" class="p-6 flex justify-center">
+                <SpinnerContent />
+            </div>
+
+            <!-- Table -->
+            <table v-else class="w-full">
                 <thead class="bg-gray-50">
                     <tr>
                         <th
@@ -39,6 +52,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
+                    <!-- Show row while saving -->
                     <tr v-if="saving">
                         <td
                             colspan="4"
@@ -47,8 +61,20 @@
                             Saving employee...
                         </td>
                     </tr>
+
+                    <!-- Show empty state if no employees -->
+                    <tr v-if="!saving && employees.length === 0">
+                        <td
+                            colspan="4"
+                            class="px-4 py-3 text-center text-sm text-gray-400"
+                        >
+                            No employees found.
+                        </td>
+                    </tr>
+
+                    <!-- List of employees -->
                     <tr
-                        v-for="employee in employees"
+                        v-for="employee in filteredEmployees"
                         :key="employee.id"
                         class="hover:bg-gray-50"
                     >
@@ -113,12 +139,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useStore } from "vuex";
 import Swal from "sweetalert2";
 
 import ModalContent from "./ModalContent.vue";
 import EditModalContent from "./EditModalContent.vue";
+//add spinner
+import SpinnerContent from "../components/SpinnerContent.vue";
+//import debounce
+import { debounce } from "lodash";
 
 const store = useStore();
 const showModal = ref(false);
@@ -128,6 +158,7 @@ const selectedEmployee = ref(null);
 const employees = computed(() => store.state.employees);
 const saving = computed(() => store.state.saving);
 const pagination = computed(() => store.state.pagination);
+const spinner = computed(() => store.state.loading);
 
 //table
 onMounted(() => {
@@ -179,5 +210,22 @@ const confirmDelete = (employee) => {
         }
     });
 };
+//end
+
+// search
+const searchQuery = ref("");
+const filteredEmployees = computed(() => {
+    // if no search query return the full employee list
+    if (!searchQuery.value) return employees.value;
+
+    //convert the query to lowercase for case sensitive
+    const query = searchQuery.value.toLowerCase();
+    return employees.value.filter(
+        (emp) =>
+            emp.name.toLowerCase().includes(query) ||
+            emp.email.toLowerCase().includes(query) ||
+            emp.position.toLowerCase().includes(query)
+    );
+});
 //end
 </script>
