@@ -148,7 +148,6 @@ import EditModalContent from "./EditModalContent.vue";
 //add spinner
 import SpinnerContent from "../components/SpinnerContent.vue";
 //import debounce
-import { debounce } from "lodash";
 
 const store = useStore();
 const showModal = ref(false);
