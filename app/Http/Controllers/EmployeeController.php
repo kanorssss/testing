@@ -29,9 +29,9 @@ class EmployeeController extends Controller
             //Apply search filter from frontend
             if (!empty($search)) {
                 $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%")
-                        ->orWhere('position', 'like', "%{$search}%");
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%')
+                        ->orWhere('position', 'like', '%' . $search . '%');
                 });
             }
 
